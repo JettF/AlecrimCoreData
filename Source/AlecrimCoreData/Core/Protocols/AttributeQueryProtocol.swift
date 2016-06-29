@@ -37,7 +37,17 @@ extension AttributeQueryProtocol {
         do {
             var results: [Self.Element] = []
             
-            let dicts = try self.toFetchRequest().execute() as [NSDictionary]
+            let dicts: [NSDictionary]
+            
+            if #available(iOS 10.0, *) {
+                dicts = try self.toFetchRequest().execute() as [NSDictionary]
+            } else {
+                let fetchRequestResult = try self.context.fetch(self.toFetchRequest())
+                dicts = (fetchRequestResult as? [NSDictionary])!
+            }
+
+            
+            
             
             try dicts.forEach {
                 guard $0.count == 1, let value = $0.allValues.first as? Self.Element else {
