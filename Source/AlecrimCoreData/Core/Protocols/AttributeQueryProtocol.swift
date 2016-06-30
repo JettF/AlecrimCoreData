@@ -43,11 +43,12 @@ extension AttributeQueryProtocol {
                 dicts = try self.toFetchRequest().execute() as [NSDictionary]
             } else {
                 let fetchRequestResult = try self.context.fetch(self.toFetchRequest())
-                dicts = (fetchRequestResult as? [NSDictionary])!
+                if let dictionary = fetchRequestResult as? [NSDictionary] {
+                    dicts = dictionary
+                } else {
+                    throw AlecrimCoreDataError.unexpectedValue(fetchRequestResult)
+                }
             }
-
-            
-            
             
             try dicts.forEach {
                 guard $0.count == 1, let value = $0.allValues.first as? Self.Element else {
